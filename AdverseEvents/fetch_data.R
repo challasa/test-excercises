@@ -13,14 +13,20 @@ library(tidyverse)
 zips_json <- GET("https://api.fda.gov/download.json")
 zips_json_content <- content(zips_json, as = "text", encoding = "UTF-8")
 zips_df <- fromJSON(zips_json_content)
-zips_df <- flatten(zips_df[[2]]$drug$event) %>% data.frame()
+zips_df <- flatten(zips_df$results$drug$event) %>% data.frame()
 
 keep_df <- zips_df %>% filter(grepl("2019", display_name))
 write.table(keep_df$file, file = "jsons_to_download.txt", 
             row.names = FALSE, col.names = FALSE, quote = FALSE)
 
-## run wget -i jsons_to_download.txt
-## run unzip \*.json.zip
+## ----------
+## run within terminal
+## wget -i jsons_to_download.txt
+## unzip \*.json.zip
+## rm *.json.zip
+## ----------
+
+
 
 
 
