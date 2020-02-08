@@ -25,8 +25,6 @@ library(tidyverse)
 library(data.table)
 library(lubridate)
 
-
-#' ### Let's restrict to all the events reported between Jan 01, 2017 to Dec 20th, 2019 (last date of updation as per their website)
 # take apikey as input
 apikey = rstudioapi::askForPassword("Enter API Key:")
 
@@ -39,7 +37,8 @@ endpoint <- "drug/event.json"
 
 ## Fetch count of records received data ----
 
-#' - Let's count to see how many reecords are received per day. There is an API that returns a timeseries - let's use it
+#' - **Just for this section, let's keep the timeframe to Jan 2017 to 2019 Q3**
+#' - There is an API that returns a timeseries - let's use it
 records_perday_call <- paste(base_url, endpoint,"?search=receivedate:[2017-01-01+TO+2019-12-20]", "&count=receiptdate", sep = "")
 
 records_perday_call_request <- GET(records_perday_call)
@@ -66,26 +65,13 @@ autoplot(ts_obj) + labs(y = "Number of Reports Received",
 
 ggseasonplot(ts_obj, year.labels = TRUE)
 ggsubseriesplot(ts_obj)
-  
 
-#' ### Explore data 
 
-#' - As per open.fda.gov, limits with an API key are 240 requests per minute, 120000 requests per day. So, am going to limit the number of records to 10000
+#' ### Explore 2019 Q3 data 
+#' - **This analysis is primarily restricted to events within 2019 Q3.**
 
-## Fetch Adverse events records data ----
-num_events = 10000
-#call <- paste(base_url, endpoint,"?api_key=", apikey, "&search=receivedate:[20170101+TO+20191220]&limit","=", num_events, sep="")
-
-call <- paste(base_url, endpoint,"?api_key=", apikey, "&search=receivedate:[20170101+TO+20191220]&limit=", num_events, sep="")
-
-# make a GET request to the API
-request <- GET(call)
-request$status_code # 200 -- call successful
-response <- content(request, as = "text", encoding = "UTF-8")
-
-# convert response to dataframe
-data_df <- fromJSON(response, flatten = TRUE) %>%
-  data.frame()
+## load dataset
+data_df <- readRDS("/home/rstudio/combined_df.RDS")
 
 #+ r check_colnames, results = "hide"
 names(data_df)
