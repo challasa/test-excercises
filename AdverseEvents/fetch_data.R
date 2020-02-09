@@ -1,7 +1,11 @@
 
-## Fetch Adverse Events data using open FDA API
-## create a text file with links to all zip json files from open.fda.gov
-## We are going to restrict to data from 2019
+## Fetch Adverse Events data from openFDA
+## **************************************
+
+## Harder route: fetches you bigger dataset to work with ----
+## ************
+## * create a text file with links to all zip json files from open.fda.gov
+## * We are going to restrict to data from 2019 Q3
 
 ## https://open.fda.gov/apis/drug/event/searchable-fields
 library(httr)
@@ -19,13 +23,14 @@ keep_df <- zips_df %>% filter(grepl("2019 Q3", display_name))
 write.table(keep_df$file, file = "jsons_to_download.txt", 
             row.names = FALSE, col.names = FALSE, quote = FALSE)
 
-## ----------
+## ******************
 ## run within terminal
 ## wget -i jsons_to_download.txt
 ## unzip \*.json.zip
 ## rm *.json.zip
-## ----------
+## ******************
 
+## read in unzipped json files and combine them all into a dataframe
 path <- "/newvolume/home/ubuntu/adverse_events_fda"
 files <- dir(path, pattern = "*.json")
 system.time(
@@ -43,10 +48,11 @@ system.time(
 dim(combined_df) #441477 39
 saveRDS(combined_df, file = "/home/rstudio/combined_df.RDS")
 
-## ================
-## There is an easier way to get data using the Web API - however one can only get 100 records
-## and that's the limit set by openFDA
-## =============
+
+## Easier route: fetches data using the Web API ----
+## *************
+## * however one can only get 100 records at a time
+##   and that's the limit set by openFDA
 apikey = rstudioapi::askForPassword("Enter API Key:")
 base_url <- "https://api.fda.gov/"
 endpoint <- "drug/event.json"
@@ -61,8 +67,3 @@ response <- content(request, as = "text", encoding = "UTF-8")
 # convert response to dataframe
 data_df <- fromJSON(response, flatten = TRUE) %>%
   data.frame()
-
-
-
-
-
