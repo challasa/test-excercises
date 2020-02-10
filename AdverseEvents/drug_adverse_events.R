@@ -2,9 +2,7 @@
 #' title: FDA Drug Adverse Events - Data Exploration
 #' date: "`r format(Sys.time(), format = '%B %d, %Y')`" 
 #' output:
-#'    html_document:
-#'      theme: readable
-#'      highlight: pygments
+#'    github_document
 #' ---
 
 
@@ -72,7 +70,7 @@ ggsubseriesplot(ts_obj)
 #' - **This analysis is primarily restricted to events within 2019 Q3.**
 
 ## load dataset
-data_df <- readRDS("/home/ubuntu/adverse_events_fda/combined_df.RDS")
+data_df <- readRDS("/newvolume/home/ubuntu/adverse_events_fda/combined_df.RDS")
 ## 441477 39
 
 glimpse(data_df)
@@ -299,7 +297,7 @@ rm(ae_disease, ae_melt)
 
 #' #### Drugs frequent itemsets
 #' - What are the drugs frequently taken together
-library(arules, lib.loc = "/home/ubuntu/R/x86_64-pc-linux-gnu-library/3.6")
+library(arules)
 
 #' - activesubstancename is the drug info
 #' - Number of distinct drugs: `r n_distinct(drug_df$activesubstance.activesubstancename)`
