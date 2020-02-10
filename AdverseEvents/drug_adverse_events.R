@@ -206,7 +206,7 @@ reaction_df <- data.table(reaction_df)
 top10_ae <- reaction_df[, .(NumReports = uniqueN(safetyreportid)), by = .(reactionmeddrapt)][order(-NumReports)][1:10]
 
 top10_ae %>%
-  ggplot(aes(x= reorder(reactionmeddrapt, NumEvents), y = NumReports)) +
+  ggplot(aes(x= reorder(reactionmeddrapt, NumReports), y = NumReports)) +
   geom_col(fill = "steelblue") +
   geom_label(aes(label = NumReports)) +
   labs(title = "Top 10 adverse reactions", 
@@ -301,12 +301,59 @@ rm(ae_disease, ae_melt)
 #' - What are the drugs frequently taken together
 library(arules, lib.loc = "/home/ubuntu/R/x86_64-pc-linux-gnu-library/3.6")
 
-#' - medicinalproduct is the drug info
-#' - Number of distinct drugs: `r n_distinct(drug_df$medicinalproduct)`
+#' - activesubstancename is the drug info
+#' - Number of distinct drugs: `r n_distinct(drug_df$activesubstance.activesubstancename)`
 #' - Our objective is to find out what drugs are commonly taken together. 
-#' - We can use arules R package to identify frequent itemsets
+#' - We can use apriori algorithm from arules R package to identify frequent itemsets
 
 ## convert drugs data to transactions format
-set(drug_df, j = "safetyreportid", )
-dt_data <- as(drug_df[,c("safetyreportid", "medicinalproduct")], "transactions")
+dt_df <- drug_df %>%
+  select(safetyreportid, activesubstance.activesubstancename) %>%
+  distinct() %>%
+  group_by(safetyreportid) %>%
+  summarise(basket = as.vector(list(activesubstance.activesubstancename)))
+
+dt_data <- as(dt_df$basket, "transactions")
+
+summary(dt_data)
+
+## Code used from the link below
+## Ref:https://www.kaggle.com/msp48731/frequent-itemsets-and-association-rules
+hist(size(dt_data), breaks = 0:166, xaxt="n", ylim=c(0,220000), 
+     main = "Number of Drugs per Report", xlab = "#Items")
+axis(1, at=seq(0,170,by=10), cex.axis=0.8)
+mtext(paste("Total:", length(dt_data), 
+            "baskets,", sum(size(dt_data)), "items"))
+
+itemFrequencyPlot(dt_data,topN=20,type="absolute", main="Absolute Item Frequency Plot")
+
+item_frequencies <- itemFrequency(dt_data, type="a")
+support <- 0.02 # an item will be considered as frequent iff at least 2 percent of all the baskets contain it
+freq_items <- sort(item_frequencies, decreasing = F)
+freq_items <- freq_items[freq_items>support*length(dt_data)]
+
+par(mar=c(2,10,2,2)); options(scipen=5)
+barplot(freq_items, horiz=T, las=1, main="Frequent Items", cex.names=.8, xlim=c(0,max(freq_items)+1000))
+mtext(paste("support:",support), padj = .8)
+abline(v=support*length(dt_data), col="red")
+
+## frequent itemsets
+support <- 0.008
+itemsets <- apriori(dt_data, parameter = list(target = "frequent itemsets", 
+                                              supp=support, minlen=2
+                                              ), 
+                    control = list(verbose = FALSE))
+
+inspect(itemsets[1:10])
+
+par(mar=c(5,18,2,2)+.1)
+sets_order_supp <- DATAFRAME(sort(itemsets, by="support", decreasing = F))
+barplot(sets_order_supp$support, names.arg=sets_order_supp$items, xlim=c(0,0.1), horiz = T, las = 2, cex.names = .8, main = "Frequent Itemsets")
+mtext(paste("support:",support), padj = .8)
+
+sets_order_supp %>% arrange(desc(support))
+
+## rmarkdown::render("drug_adverse_events.R")
+
+sessionInfo()
 
