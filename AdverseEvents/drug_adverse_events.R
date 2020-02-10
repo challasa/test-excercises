@@ -6,7 +6,7 @@
 #' ---
 
 
-#' #' <style>
+#' <style>
 #'  .main-container {
 #'    max-width: 1600px !important;
 #'  }

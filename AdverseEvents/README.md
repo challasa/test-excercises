@@ -9,10 +9,10 @@
   exapnding the memory on the instance and later mounting the EBS volume as
   needed.Ref: https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/recognize-expanded-volume-linux.html
   lsblk
-  sudo growpart /dev/xvda 1
-  sudo resize2fs /dev/xvda1
-  sudo mkdir /newvolume
-  sudo mount /dev/xvdf1 /newvolume
+  - sudo growpart /dev/xvda 1
+  - sudo resize2fs /dev/xvda1
+  - sudo mkdir /newvolume
+  - sudo mount /dev/xvdf1 /newvolume
 
 - Other References:
   - https://open.fda.gov/apis/drug/event/
