@@ -70,7 +70,7 @@ ggsubseriesplot(ts_obj)
 #' - **This analysis is primarily restricted to events within 2019 Q3.**
 
 ## load dataset
-data_df <- readRDS("/newvolume/home/ubuntu/adverse_events_fda/combined_df.RDS")
+data_df <- readRDS("/home/ubuntu/adverse_events_fda/combined_df.RDS")
 ## 441477 39
 
 glimpse(data_df)
